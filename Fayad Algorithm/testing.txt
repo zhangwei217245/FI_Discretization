@@ -1,0 +1,7 @@
+Class: A,B,C
+Data:
+1.2,A
+2.3,B
+4,A
+3.5,C
+End:
