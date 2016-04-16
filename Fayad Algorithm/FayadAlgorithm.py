@@ -2,33 +2,75 @@
 import numpy as np
 import math
 
+
 class FayadAlgorithm:
     def __init__(self, dataset):
-        self.dataset = dataset   # Dictionary to store the given input data.
+        self.dataset = dataset  # Dictionary to store the given input data.
+
+    def process_data(self, data_set=None, boundaries=set([]), max_cp=None):
+        ds = self.dataset if data_set is None else data_set
+        cut_points = self.calc_cut_points(ds)
+        max_gain = float('-inf')
+        if len(cut_points) == 0:
+            return boundaries
+        for cp in cut_points:
+            rst = self.calc_gain(ds, cp)
+            print(cp, rst)
+            if rst['qualified']:
+                boundaries.add(cp)
+                return boundaries
+            if rst['gain'] > max_gain:
+                max_gain = rst['gain']
+                max_cp = cp
+
+        if max_cp is None:
+            return boundaries
+        splitted = self.split_dataset(ds, max_cp)
+        boundaries.update(self.process_data(splitted[0], boundaries, max_cp))
+        boundaries.update(self.process_data(splitted[1], boundaries, max_cp))
+        return boundaries
 
     def calc_cut_points(self, dataset):
         cut_points = []
-        for i in range(len(dataset) - 1):
-            cut_points.append(np.average([dataset[i][0], dataset[i+1][0]]))
+        array = dataset['data']
+        for i in range(len(array) - 1):
+            cut_points.append(np.average([array[i][0], array[i + 1][0]]))
         return cut_points
 
     def split_dataset(self, dataset, cut_point):
-        dataset_list = [[], []]
-        for item in dataset:
+        result = [{'class': set([]), 'data': []}, {'class': set([]), 'data': []}]
+        for item in dataset['data']:
             if item[0] <= cut_point:
-                dataset_list[0].append(item)
+                result[0]['class'].add(item[1])
+                result[0]['data'].append(item)
             else:
-                dataset_list[1].append(item)
-        return dataset_list
-
+                result[1]['class'].add(item[1])
+                result[1]['data'].append(item)
+        return result
 
     def calc_gain(self, dataset, cut_point):
-        dataset_list = self.split_dataset(dataset, cut_point)
+        splitted_result = self.split_dataset(dataset, cut_point)
+        sub_ent_values = []
         info_value = 0
-        for sub_set in dataset_list:
-            info_value += (len(sub_set) * self.entropy(sub_set, self.dataset['class']) / len(self.dataset))
-        overall_entropy = self.entropy(self.dataset, self.dataset['class'])
-        return overall_entropy - info_value
+        N = len(dataset['data'])
+        for sub_set in splitted_result:
+            sub_set_ent = self.entropy(sub_set['data'], sub_set['class'])
+            sub_ent_values.append((sub_set_ent, len(sub_set['class'])))
+            info_value += (len(sub_set['data']) * sub_set_ent) / N
+
+        overall_entropy = self.entropy(dataset['data'], dataset['class'])
+        gain = overall_entropy - info_value
+        delta = self.calc_delta(sub_ent_values, overall_entropy, len(dataset['class']), N)
+        return {'gain': gain, 'delta': delta, 'qualified':  gain - delta > 0.0}
+
+    def calc_delta(self, sub_ent_values, all_entropy, k, N):
+        sum = 0
+        for ent in sub_ent_values:
+            sum += (ent[1] * ent[0])
+        f = math.log2(math.pow(3, k) - 2) - (
+            (k * all_entropy) - sum
+        )
+        return (np.log2(N - 1) + f) / N
 
     def entropy(self, dataset, class_list):
         '''
@@ -43,46 +85,6 @@ class FayadAlgorithm:
                     temp[clz] += 1
         entropy_value = 0
         for k in temp.keys():
-            p = temp[k]/len(dataset)
-            entropy_value += p * math.log2(p)
+            p = temp[k] / len(dataset)
+            entropy_value += (p * math.log2(p))
         return - entropy_value
-
-    def calc_delta(self, ):
-
-        pass
-
-
-    def preprocessing(self):
-        '''
-        This method parses a text file and prepare it for the algorithm
-        '''
-        pass
-
-    def discretization(self):
-        '''
-        This method should calculate the information gain Gain(S,T) = Ent(S) - I(S,T).
-        Algorithm:
-        (1) Find T (among possible data points) that minimizes I(S, T) (i.e., max information gain)
-        (2) Recursively find new T to the partitions obtained until the terminating criterion is
-        met, i.e. Gain(S, T) > delta
-        :return:
-        '''
-        pass
-
-
-
-    def terminating_criteria(self):
-        '''
-        This method computes the terminating criteria (Gain(S,T)> delta) where delta is:
-        delta = (log(N-1)/N) + (f(S,T)/N)
-        f(S,T) = log(3^k-2)-(k*Ent(S)- k1*Ent(S1) - k2*Ent(S2))
-        :return:
-        '''
-        pass
-
-    def interval_points(self):
-        '''
-        This method return a list of boundary points and intervals.
-        :return:
-        '''
-
