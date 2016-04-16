@@ -1,9 +1,56 @@
 # Generic Imports
+import numpy as np
+import math
+
+class FayadAlgorithm:
+    def __init__(self, dataset):
+        self.dataset = dataset   # Dictionary to store the given input data.
+
+    def calc_cut_points(self, dataset):
+        cut_points = []
+        for i in range(len(dataset) - 1):
+            cut_points.append(np.average([dataset[i][0], dataset[i+1][0]]))
+        return cut_points
+
+    def split_dataset(self, dataset, cut_point):
+        dataset_list = [[], []]
+        for item in dataset:
+            if item[0] <= cut_point:
+                dataset_list[0].append(item)
+            else:
+                dataset_list[1].append(item)
+        return dataset_list
 
 
-class FayadAlgorithm(object):
-    def __init__(self):
-        self.dataset = {}   # Dictionary to store the given input data.
+    def calc_gain(self, dataset, cut_point):
+        dataset_list = self.split_dataset(dataset, cut_point)
+        info_value = 0
+        for sub_set in dataset_list:
+            info_value += (len(sub_set) * self.entropy(sub_set, self.dataset['class']) / len(self.dataset))
+        overall_entropy = self.entropy(self.dataset, self.dataset['class'])
+        return overall_entropy - info_value
+
+    def entropy(self, dataset, class_list):
+        '''
+        This method finds the entropy for every partition T
+        :return:
+        '''
+        temp = {}
+        for clz in class_list:
+            temp[clz] = 0
+            for item in dataset:
+                if item[1] == clz:
+                    temp[clz] += 1
+        entropy_value = 0
+        for k in temp.keys():
+            p = temp[k]/len(dataset)
+            entropy_value += p * math.log2(p)
+        return - entropy_value
+
+    def calc_delta(self, ):
+
+        pass
+
 
     def preprocessing(self):
         '''
@@ -22,12 +69,7 @@ class FayadAlgorithm(object):
         '''
         pass
 
-    def entropy(self):
-        '''
-        This method finds the entropy for every partition T
-        :return:
-        '''
-        pass
+
 
     def terminating_criteria(self):
         '''
