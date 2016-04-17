@@ -1,4 +1,8 @@
 class FileReader:
+    '''
+    This class is called when about to read data given as a text file.
+    '''
+
     def __init__(self, file_path):
         self.file_path = file_path
 

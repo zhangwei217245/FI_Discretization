@@ -1,9 +1,15 @@
+# Generic Imports
 import argparse
 import math
 from FileReader import FileReader
 from FayadAlgorithm import FayadAlgorithm
 
+
 def process_console_args():
+    '''
+    This method to regulate the log console input
+    :return:
+    '''
     parser = argparse.ArgumentParser('App.py')
     parser.add_argument('file', metavar=' input file',
                         help='The path to the input file')
@@ -25,7 +31,7 @@ def main(args):
     cut_points = list(boundaries)
     cut_points.sort()
     dictionary['data'].sort(key=lambda tup: tup[0])
-    min = 0 #math.floor(dictionary['data'][0][0])
+    min = 0  # math.floor(dictionary['data'][0][0])
     print('INTERVALS:')
     print('==============\t', min, '\t==============')
 
@@ -33,8 +39,9 @@ def main(args):
         if len(cut_points) > 0 and item[0] > cut_points[0]:
             print('--------------\t', cut_points.pop(0), '\t--------------')
         print(' ', item)
-    max = math.ceil(dictionary['data'][len(dictionary['data'])-1][0])
+    max = math.ceil(dictionary['data'][len(dictionary['data']) - 1][0])
     print('==============\t', max, '\t==============')
+
 
 if __name__ == '__main__':
     main(process_console_args())

@@ -8,6 +8,14 @@ class FayadAlgorithm:
         self.dataset = dataset  # Dictionary to store the given input data.
 
     def process_data(self, data_set=None, boundaries=set([]), max_cp=None):
+        '''
+        This method performs the actual algorithm. It performs the discretization and results the cut-points along
+        with the values of each intervals
+        :param data_set:
+        :param boundaries:
+        :param max_cp:
+        :return:
+        '''
         ds = self.dataset if data_set is None else data_set
         cut_points = self.calc_cut_points(ds)
         max_gain = float('-inf')
@@ -31,6 +39,11 @@ class FayadAlgorithm:
         return boundaries
 
     def calc_cut_points(self, dataset):
+        '''
+        This method finds the possible cut-points T from the dataset.
+        :param dataset:
+        :return: cut_points
+        '''
         cut_points = []
         array = dataset['data']
         for i in range(len(array) - 1):
@@ -38,6 +51,12 @@ class FayadAlgorithm:
         return cut_points
 
     def split_dataset(self, dataset, cut_point):
+        '''
+        This method is called to split the dataset based on given cut-point
+        :param dataset:
+        :param cut_point:
+        :return:
+        '''
         result = [{'class': set([]), 'data': []}, {'class': set([]), 'data': []}]
         for item in dataset['data']:
             if item[0] <= cut_point:
@@ -49,6 +68,12 @@ class FayadAlgorithm:
         return result
 
     def calc_gain(self, dataset, cut_point):
+        '''
+        This method iteratively claculates the Gain(S,T) based on the chosen cut-point.
+        :param dataset:
+        :param cut_point:
+        :return:
+        '''
         splitted_result = self.split_dataset(dataset, cut_point)
         sub_ent_values = []
         info_value = 0
