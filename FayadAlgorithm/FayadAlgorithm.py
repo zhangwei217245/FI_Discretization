@@ -69,7 +69,7 @@ class FayadAlgorithm:
 
     def calc_gain(self, dataset, cut_point):
         '''
-        This method iteratively claculates the Gain(S,T) based on the chosen cut-point.
+        This method iteratively calculates the Gain(S,T) based on the chosen cut-point.
         :param dataset:
         :param cut_point:
         :return:
@@ -92,10 +92,10 @@ class FayadAlgorithm:
         sum = 0
         for ent in sub_ent_values:
             sum += (ent[1] * ent[0])
-        f = math.log2(math.pow(3, k) - 2) - (
+        f = math.log(math.pow(3, k) - 2, 2) - (
             (k * all_entropy) - sum
         )
-        return (np.log2(N - 1) + f) / N
+        return (math.log(N - 1, 2) + f) / N
 
     def entropy(self, dataset, class_list):
         '''
@@ -111,5 +111,5 @@ class FayadAlgorithm:
         entropy_value = 0
         for k in temp.keys():
             p = temp[k] / len(dataset)
-            entropy_value += (p * math.log2(p))
+            entropy_value += (p * math.log(p, 2))
         return - entropy_value
