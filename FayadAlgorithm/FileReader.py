@@ -15,9 +15,9 @@ class FileReader:
             if len(line) > 0:
                 if line.startswith('End:'):
                     break
-                if line.startswith('Class:') and line_num == 0:
-                    dict['class'].extend(line.replace("Class:", '').strip().split(','))
-                elif line_num == 1 and line.startswith('Data:'):
+                if line.startswith('class:') and line_num == 0:
+                    dict['class'].extend(line.replace("class:", '').strip().split(','))
+                elif line_num == 1 and line.startswith('data:'):
                     data_sign_passed = True
                 elif line_num > 1 and data_sign_passed:
                     pair = line.strip().split(',')
