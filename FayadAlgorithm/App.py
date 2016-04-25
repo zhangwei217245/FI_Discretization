@@ -26,15 +26,15 @@ def readfile(file_path):
 def main(args):
     filepath = args.file
     dictionary = readfile(filepath)
-    print ("Parsed Dataset:")
-    print (dictionary)
-    print ("")
+    #print("Parsed Dataset:")
+    #print(dictionary)
+    #print("")
     algo = FayadAlgorithm(dictionary)
     boundaries = algo.process_data()
     cut_points = list(boundaries)
     cut_points.sort()
     dictionary['data'].sort(key=lambda tup: tup[0])
-    min = 0  # math.floor(dictionary['data'][0][0])
+    min = math.floor(dictionary['data'][0][0])
 
     print('INTERVALS:')
     print('======= ', min, ' =======')
