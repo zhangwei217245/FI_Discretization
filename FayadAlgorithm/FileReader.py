@@ -12,8 +12,9 @@ class FileReader:
         line_num = 0
         data_sign_passed = False
         for line in file_obj:
+            line = line.lower()
             if len(line) > 0:
-                if line.startswith('End:'):
+                if line.startswith('end:'):
                     break
                 if line.startswith('class:') and line_num == 0:
                     dict['class'].extend(line.replace("class:", '').strip().split(','))
