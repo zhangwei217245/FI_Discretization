@@ -49,8 +49,8 @@ class FayadAlgorithm:
         array = dataset['data']
         for i in range(len(array) - 1):
             # cut_points.append(i)
-            cut_points.append(array[i][0])
-            # cut_points.append(np.average([array[i][0], array[i + 1][0]]))
+            # cut_points.append(array[i][0])
+            cut_points.append(np.average([array[i][0], array[i + 1][0]]))
         return cut_points
 
     def split_dataset(self, dataset, cut_point):
@@ -95,7 +95,7 @@ class FayadAlgorithm:
         overall_entropy = self.entropy(dataset['data'], dataset['class'])
         gain = overall_entropy - info_value
         delta = self.calc_delta(sub_ent_values, overall_entropy, len(dataset['class']), N)
-        return {'gain': gain, 'delta': delta, 'qualified':  gain > delta}
+        return {'gain': gain, 'delta': delta, 'qualified':  gain < delta}
 
     def calc_delta(self, sub_ent_values, all_entropy, k, N):
         sum = 0
