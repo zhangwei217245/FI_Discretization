@@ -36,7 +36,6 @@ class FayadAlgorithm:
             self.process_data(splitted[1], boundaries, max_cp)
             boundaries.add(max_cp)
             boundlist.append((max_cp, rst))
-            # print(max_cp, rst)
         return boundlist
 
     def calc_cut_points(self, dataset):
