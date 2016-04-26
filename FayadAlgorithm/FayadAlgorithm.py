@@ -47,7 +47,9 @@ class FayadAlgorithm:
         cut_points = []
         array = dataset['data']
         for i in range(len(array) - 1):
-            cut_points.append(np.average([array[i][0], array[i + 1][0]]))
+            cut_points.append(i)
+            #cut_points.append(array[i][0])
+            #cut_points.append(np.average([array[i][0], array[i + 1][0]]))
         return cut_points
 
     def split_dataset(self, dataset, cut_point):
@@ -59,13 +61,21 @@ class FayadAlgorithm:
         '''
         result = [{'class': set([]), 'data': []}, {'class': set([]), 'data': []}]
         for item in dataset['data']:
-            if item[0] <= cut_point:
+            if item[0] < cut_point:
                 result[0]['class'].add(item[1])
                 result[0]['data'].append(item)
             else:
                 result[1]['class'].add(item[1])
                 result[1]['data'].append(item)
         return result
+
+    def calc_info_entropy(self, splitted_result, sub_ent_values, N):
+        info_value = 0
+        for sub_set in splitted_result:
+            sub_set_ent = self.entropy(sub_set['data'], sub_set['class'])
+            sub_ent_values.append((sub_set_ent, len(sub_set['class'])))
+            info_value += (len(sub_set['data']) * sub_set_ent) / N
+        return info_value
 
     def calc_gain(self, dataset, cut_point):
         '''
@@ -76,12 +86,8 @@ class FayadAlgorithm:
         '''
         splitted_result = self.split_dataset(dataset, cut_point)
         sub_ent_values = []
-        info_value = 0
         N = len(dataset['data'])
-        for sub_set in splitted_result:
-            sub_set_ent = self.entropy(sub_set['data'], sub_set['class'])
-            sub_ent_values.append((sub_set_ent, len(sub_set['class'])))
-            info_value += (len(sub_set['data']) * sub_set_ent) / N
+        info_value = self.calc_info_entropy(splitted_result, sub_ent_values, N)
 
         overall_entropy = self.entropy(dataset['data'], dataset['class'])
         gain = overall_entropy - info_value

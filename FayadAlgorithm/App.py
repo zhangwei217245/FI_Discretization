@@ -30,6 +30,7 @@ def main(args):
     #print(dictionary)
     #print("")
     algo = FayadAlgorithm(dictionary)
+    #dictionary['data'].sort(key=lambda tup: tup[0])
     boundaries = algo.process_data()
     cut_points = list(boundaries)
     cut_points.sort()
