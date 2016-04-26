@@ -31,7 +31,8 @@ def main(args):
     #print("")
     algo = FayadAlgorithm(dictionary)
     dictionary['data'].sort(key=lambda tup: tup[0])
-    boundaries = algo.process_data()
+    boundaries = set([])
+    algo.process_data(boundaries=boundaries)
     cut_points = list(boundaries)
     cut_points.sort()
     dictionary['data'].sort(key=lambda tup: tup[0])
@@ -42,7 +43,7 @@ def main(args):
 
     for item in dictionary['data']:
         if len(cut_points) > 0 and item[0] > cut_points[0]:
-            print('  ---- ', cut_points.pop(0), ' ----')
+            print('     ---- ', cut_points.pop(0), ' ----')
         print('    ', item)
     max = math.ceil(dictionary['data'][len(dictionary['data']) - 1][0])
     print('======= ', max, ' =======')

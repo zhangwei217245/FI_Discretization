@@ -29,15 +29,15 @@ class FayadAlgorithm:
                 max_cp = cp
 
         rst = self.calc_gain(ds, max_cp)
-        print(max_cp, rst)
+
         if rst['qualified']:
-            boundaries.add(max_cp)
-            return boundaries
-        else:
             splitted = self.split_dataset(ds, max_cp)
             self.process_data(splitted[0], boundaries, max_cp)
             self.process_data(splitted[1], boundaries, max_cp)
-        return boundaries
+            boundaries.add(max_cp)
+            print(max_cp, rst)
+        elif not rst['qualified']:
+            return boundaries
 
     def calc_cut_points(self, dataset):
         '''
@@ -48,8 +48,6 @@ class FayadAlgorithm:
         cut_points = []
         array = dataset['data']
         for i in range(len(array) - 1):
-            # cut_points.append(i)
-            # cut_points.append(array[i][0])
             cut_points.append(np.average([array[i][0], array[i + 1][0]]))
         return cut_points
 
@@ -95,7 +93,7 @@ class FayadAlgorithm:
         overall_entropy = self.entropy(dataset['data'], dataset['class'])
         gain = overall_entropy - info_value
         delta = self.calc_delta(sub_ent_values, overall_entropy, len(dataset['class']), N)
-        return {'gain': gain, 'delta': delta, 'qualified':  gain < delta}
+        return {'gain': gain, 'delta': delta, 'qualified':  gain > delta}
 
     def calc_delta(self, sub_ent_values, all_entropy, k, N):
         sum = 0
