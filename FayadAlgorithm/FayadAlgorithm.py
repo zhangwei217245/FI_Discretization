@@ -7,7 +7,7 @@ class FayadAlgorithm:
     def __init__(self, dataset):
         self.dataset = dataset  # Dictionary to store the given input data.
 
-    def process_data(self, data_set=None, boundaries=set([]), max_cp=None):
+    def process_data(self, data_set=None, boundaries=set([]), max_cp=None, level=0):
         '''
         This method performs the actual algorithm. It performs the discretization and results the cut-points along
         with the values of each intervals
@@ -16,6 +16,7 @@ class FayadAlgorithm:
         :param max_cp:
         :return:
         '''
+        print('level = ', level)
         ds = self.dataset if data_set is None else data_set
         cut_points = self.calc_cut_points(ds)
 
@@ -25,24 +26,29 @@ class FayadAlgorithm:
         for cp in cut_points:
             splitted = self.split_dataset(ds, cp)
             info_value = self.calc_info_entropy(splitted, [], len(ds['data']))
+            print("info_value", info_value, "cp=", cp)
             if min_info >= info_value:
                 min_info = info_value
                 max_cp = cp
 
+        print('mininfo=', min_info)
+        splitted = self.split_dataset(ds, max_cp)
+        print('splitted', splitted[0]['data'][0], splitted[1]['data'][0])
+
         if max_cp is not None:
             rst = self.calc_gain(ds, max_cp)
             print(max_cp, ds['data'][max_cp], rst)
-            if rst['qualified'] or len(ds['data']) <= 1 or \
-                            ds['data'][max_cp][0] == ds['data'][max_cp + 1][0]:
+            if rst['gain'] > rst['delta']:
                 boundaries.add((ds['data'][max_cp][0]+ds['data'][max_cp + 1][0])/2)
                 return boundaries
             else:
-                boundaries.update(self.process_data(splitted[0], boundaries, max_cp))
-                boundaries.update(self.process_data(splitted[1], boundaries, max_cp))
+                boundaries.add(self.process_data(splitted[0], boundaries, max_cp, level=level+1))
+                boundaries.add(self.process_data(splitted[1], boundaries, max_cp, level=level+1))
                 return boundaries
 
         if max_cp is None:
             return boundaries
+        return boundaries
 
 
 
@@ -84,8 +90,8 @@ class FayadAlgorithm:
         for sub_set in splitted_result:
             sub_set_ent = self.entropy(sub_set['data'], sub_set['class'])
             sub_ent_values.append((sub_set_ent, len(sub_set['class'])))
-            info_value += (len(sub_set['data']) * sub_set_ent) / N
-        return info_value
+            info_value += (len(sub_set['data']) * sub_set_ent)
+        return info_value / N
 
     def calc_gain(self, dataset, cut_point):
         '''
