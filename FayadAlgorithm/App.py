@@ -40,10 +40,12 @@ def main(args):
     print('INTERVALS:')
     print('======= ', min, ' =======')
 
+    counter = 0
     for item in dictionary['data']:
         if len(cut_points) > 0 and item[0] > cut_points[0]:
             print('  ---- ', cut_points.pop(0), ' ----')
-        print('    ', item)
+        print(counter, '    ', item)
+        counter += 1
     max = math.ceil(dictionary['data'][len(dictionary['data']) - 1][0])
     print('======= ', max, ' =======')
 
