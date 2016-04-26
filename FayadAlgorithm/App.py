@@ -32,7 +32,10 @@ def main(args):
     algo = FayadAlgorithm(dictionary)
     dictionary['data'].sort(key=lambda tup: tup[0])
     boundaries = set([])
-    algo.process_data(boundaries=boundaries)
+    boundlist = algo.process_data(boundaries=boundaries)
+    boundlist.sort(key=lambda tup: tup[0])
+    for item in boundlist:
+        print(item)
     cut_points = list(boundaries)
     cut_points.sort()
     dictionary['data'].sort(key=lambda tup: tup[0])

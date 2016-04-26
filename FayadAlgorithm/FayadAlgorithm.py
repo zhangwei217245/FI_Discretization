@@ -7,7 +7,7 @@ class FayadAlgorithm:
     def __init__(self, dataset):
         self.dataset = dataset  # Dictionary to store the given input data.
 
-    def process_data(self, data_set=None, boundaries=set([]), max_cp=None):
+    def process_data(self, data_set=None, boundaries=set([]), max_cp=None, boundlist=[]):
         '''
         This method performs the actual algorithm. It performs the discretization and results the cut-points along
         with the values of each intervals
@@ -35,9 +35,9 @@ class FayadAlgorithm:
             self.process_data(splitted[0], boundaries, max_cp)
             self.process_data(splitted[1], boundaries, max_cp)
             boundaries.add(max_cp)
-            print(max_cp, rst)
-        elif not rst['qualified']:
-            return boundaries
+            boundlist.append((max_cp, rst))
+            # print(max_cp, rst)
+        return boundlist
 
     def calc_cut_points(self, dataset):
         '''
