@@ -7,7 +7,7 @@ class FayadAlgorithm:
     def __init__(self, dataset):
         self.dataset = dataset  # Dictionary to store the given input data.
 
-    def process_data(self, data_set=None, boundaries=set([]), max_cp=None, level=0):
+    def process_data(self, data_set=None, boundaries=set([]), max_cp=None):
         '''
         This method performs the actual algorithm. It performs the discretization and results the cut-points along
         with the values of each intervals
@@ -16,41 +16,27 @@ class FayadAlgorithm:
         :param max_cp:
         :return:
         '''
-        print('level = ', level)
         ds = self.dataset if data_set is None else data_set
         cut_points = self.calc_cut_points(ds)
-
         min_info = float('+inf')
-        # if len(cut_points) == 0:
-        #     return boundaries
+        if len(cut_points) == 0:
+            return boundaries
         for cp in cut_points:
             splitted = self.split_dataset(ds, cp)
             info_value = self.calc_info_entropy(splitted, [], len(ds['data']))
-            print("info_value", info_value, "cp=", cp)
             if min_info >= info_value:
                 min_info = info_value
                 max_cp = cp
 
-        print('mininfo=', min_info)
-        splitted = self.split_dataset(ds, max_cp)
-        print('splitted', splitted[0]['data'][0], splitted[1]['data'][0])
-
-        if max_cp is not None:
-            rst = self.calc_gain(ds, max_cp)
-            print(max_cp, ds['data'][max_cp], rst)
-            if rst['gain'] > rst['delta']:
-                boundaries.add((ds['data'][max_cp][0]+ds['data'][max_cp + 1][0])/2)
-                return boundaries
-            else:
-                boundaries.add(self.process_data(splitted[0], boundaries, max_cp, level=level+1))
-                boundaries.add(self.process_data(splitted[1], boundaries, max_cp, level=level+1))
-                return boundaries
-
-        if max_cp is None:
-            return boundaries
+        rst = self.calc_gain(ds, max_cp)
+        print(cp, rst)
+        if rst['qualified']:
+            boundaries.add(cp)
+        else:
+            splitted = self.split_dataset(ds, max_cp)
+            self.process_data(splitted[0], boundaries, max_cp)
+            self.process_data(splitted[1], boundaries, max_cp)
         return boundaries
-
-
 
     def calc_cut_points(self, dataset):
         '''
@@ -61,9 +47,8 @@ class FayadAlgorithm:
         cut_points = []
         array = dataset['data']
         for i in range(len(array) - 1):
-            cut_points.append(i)
-            #cut_points.append(array[i][0])
-            #cut_points.append(np.average([array[i][0], array[i + 1][0]]))
+            cut_points.append(array[i][0])
+            # cut_points.append(np.average([array[i][0], array[i + 1][0]]))
         return cut_points
 
     def split_dataset(self, dataset, cut_point):
@@ -74,15 +59,13 @@ class FayadAlgorithm:
         :return:
         '''
         result = [{'class': set([]), 'data': []}, {'class': set([]), 'data': []}]
-        counter = 0
         for item in dataset['data']:
-            if counter <= cut_point:
+            if item[0] <= cut_point:
                 result[0]['class'].add(item[1])
                 result[0]['data'].append(item)
             else:
                 result[1]['class'].add(item[1])
                 result[1]['data'].append(item)
-            counter += 1
         return result
 
     def calc_info_entropy(self, splitted_result, sub_ent_values, N):
@@ -90,8 +73,8 @@ class FayadAlgorithm:
         for sub_set in splitted_result:
             sub_set_ent = self.entropy(sub_set['data'], sub_set['class'])
             sub_ent_values.append((sub_set_ent, len(sub_set['class'])))
-            info_value += (len(sub_set['data']) * sub_set_ent)
-        return info_value / N
+            info_value += (len(sub_set['data']) * sub_set_ent) / N
+        return info_value
 
     def calc_gain(self, dataset, cut_point):
         '''
@@ -108,7 +91,7 @@ class FayadAlgorithm:
         overall_entropy = self.entropy(dataset['data'], dataset['class'])
         gain = overall_entropy - info_value
         delta = self.calc_delta(sub_ent_values, overall_entropy, len(dataset['class']), N)
-        return {'gain': gain, 'delta': delta, 'qualified':  gain - delta > 0.0}
+        return {'gain': gain, 'delta': delta, 'qualified':  gain < delta}
 
     def calc_delta(self, sub_ent_values, all_entropy, k, N):
         sum = 0

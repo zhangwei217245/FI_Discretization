@@ -34,18 +34,16 @@ def main(args):
     boundaries = algo.process_data()
     cut_points = list(boundaries)
     cut_points.sort()
-    #dictionary['data'].sort(key=lambda tup: tup[0])
+    dictionary['data'].sort(key=lambda tup: tup[0])
     min = math.floor(dictionary['data'][0][0])
 
     print('INTERVALS:')
     print('======= ', min, ' =======')
 
-    counter = 0
     for item in dictionary['data']:
         if len(cut_points) > 0 and item[0] > cut_points[0]:
             print('  ---- ', cut_points.pop(0), ' ----')
-        print(counter, '    ', item)
-        counter += 1
+        print('    ', item)
     max = math.ceil(dictionary['data'][len(dictionary['data']) - 1][0])
     print('======= ', max, ' =======')
 

@@ -247,7 +247,9 @@ int checkGain(int start,int mid,int end)
 {
 	int flag,N;
 	N=(end-start)+1;
-	if(getGain(start,mid,end)<((log(N-1)/log(2))/N)+(getDelta(start,mid,end)/N))
+	double gain = getGain(start,mid,end);
+	double delta = ((log(N-1)/log(2))/N)+(getDelta(start,mid,end)/N);
+	if(gain > delta)
 		flag=0;
 	else
 		flag=1;
