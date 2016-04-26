@@ -18,25 +18,33 @@ class FayadAlgorithm:
         '''
         ds = self.dataset if data_set is None else data_set
         cut_points = self.calc_cut_points(ds)
-        max_gain = float('-inf')
-        if len(cut_points) == 0:
-            return boundaries
+
+        min_info = float('+inf')
+        # if len(cut_points) == 0:
+        #     return boundaries
         for cp in cut_points:
-            rst = self.calc_gain(ds, cp)
-            print(cp, rst)
-            if rst['qualified']:
-                boundaries.add(cp)
-                return boundaries
-            if rst['gain'] > max_gain:
-                max_gain = rst['gain']
+            splitted = self.split_dataset(ds, cp)
+            info_value = self.calc_info_entropy(splitted, [], len(ds['data']))
+            if min_info >= info_value:
+                min_info = info_value
                 max_cp = cp
+
+        if max_cp is not None:
+            rst = self.calc_gain(ds, max_cp)
+            print(max_cp, ds['data'][max_cp], rst)
+            if rst['qualified'] or len(ds['data']) <= 1 or \
+                            ds['data'][max_cp][0] == ds['data'][max_cp + 1][0]:
+                boundaries.add((ds['data'][max_cp][0]+ds['data'][max_cp + 1][0])/2)
+                return boundaries
+            else:
+                boundaries.update(self.process_data(splitted[0], boundaries, max_cp))
+                boundaries.update(self.process_data(splitted[1], boundaries, max_cp))
+                return boundaries
 
         if max_cp is None:
             return boundaries
-        splitted = self.split_dataset(ds, max_cp)
-        boundaries.update(self.process_data(splitted[0], boundaries, max_cp))
-        boundaries.update(self.process_data(splitted[1], boundaries, max_cp))
-        return boundaries
+
+
 
     def calc_cut_points(self, dataset):
         '''
@@ -60,13 +68,15 @@ class FayadAlgorithm:
         :return:
         '''
         result = [{'class': set([]), 'data': []}, {'class': set([]), 'data': []}]
+        counter = 0
         for item in dataset['data']:
-            if item[0] < cut_point:
+            if counter <= cut_point:
                 result[0]['class'].add(item[1])
                 result[0]['data'].append(item)
             else:
                 result[1]['class'].add(item[1])
                 result[1]['data'].append(item)
+            counter += 1
         return result
 
     def calc_info_entropy(self, splitted_result, sub_ent_values, N):
