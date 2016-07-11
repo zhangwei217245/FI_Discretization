@@ -31,13 +31,11 @@ class FayadAlgorithm:
         rst = self.calc_gain(ds, max_cp)
 
         if rst['qualified']:
-            boundaries.add(max_cp)
-            boundlist.append((max_cp, rst))
-            return boundlist
-        else:
             splitted = self.split_dataset(ds, max_cp)
             self.process_data(splitted[0], boundaries, max_cp)
             self.process_data(splitted[1], boundaries, max_cp)
+            boundaries.add(max_cp)
+            boundlist.append((max_cp, rst))
         return boundlist
 
     def calc_cut_points(self, dataset):
